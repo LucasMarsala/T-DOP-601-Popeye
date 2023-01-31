@@ -1,0 +1,74 @@
+version: "3.9"
+services:
+  redis:
+    image: redis:7.0.8-alpine
+    container_name: redis
+    restart: always
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - '6379:6379'
+    networks:
+      - poll-tier
+      - back-tier
+  db:
+    image: postgres:9.4
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./db-data:/var/lib/postgressql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - '5432:5432'
+    networks:
+      - result-tier
+      - back-tier
+  poll:
+    build: ./poll
+    container_name: poll
+    restart: always
+    ports:
+      - '5000:80'
+    networks:
+      - poll-tier
+    depends_on:
+      - redis
+  backend:
+    build:
+      context: ./worker
+      target: builder
+  worker:
+    build:
+      context: ./worker
+      target: run
+    container_name: worker
+    restart: always
+    networks:
+      - poll-tier
+      - back-tier
+    depends_on:
+      - redis
+      - db
+  result:
+    build: ./result
+    container_name: result
+    restart: always
+    ports:
+      - '5001:80'
+    networks:
+      - result-tier
+    depends_on:
+      - redis
+
+networks:
+  poll-tier:
+    driver: bridge
+  result-tier:
+    driver: bridge
+  back-tier:
+    driver: bridge
