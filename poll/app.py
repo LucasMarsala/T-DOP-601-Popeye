@@ -7,11 +7,11 @@ import random
 import json
 
 
-load_dotenv()
-
-port = os.getenv('PORT')
-host = os.getenv('HOST')
-redis = os.getenv('REDIS_HOST')
+# load_dotenv()
+#
+# port = os.getenv('PORT')
+# host = os.getenv('HOST')
+# redis = os.getenv('REDIS_HOST')
 option_a = os.getenv('OPTION_A', "Ansible")
 option_b = os.getenv('OPTION_B', "Chef")
 option_c = os.getenv('OPTION_C', "Puppet")

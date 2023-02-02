@@ -32,6 +32,10 @@ services:
     build: ./poll
     container_name: poll
     restart: always
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      PORT: ${PORT}
+      HOST: ${HOST}
     ports:
       - '5000:80'
     networks:
@@ -48,6 +52,9 @@ services:
       target: run
     container_name: worker
     restart: always
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      DATABASE_HOST: ${DATABASE_HOST}
     networks:
       - poll-tier
       - back-tier
@@ -58,6 +65,10 @@ services:
     build: ./result
     container_name: result
     restart: always
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      PORT: ${PORT}
+      HOST: ${HOST}
     ports:
       - '5001:80'
     networks:
@@ -72,3 +83,6 @@ networks:
     driver: bridge
   back-tier:
     driver: bridge
+
+volumes:
+  db-data:

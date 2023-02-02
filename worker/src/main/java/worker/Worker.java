@@ -4,14 +4,12 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import java.sql.*;
 import org.json.JSONObject;
-import io.github.cdimascio.dotenv.Dotenv;
 
 class Worker {
   public static void main(String[] args) {
     try {
-        Dotenv dotenv = Dotenv.configure().load();
-        Jedis redis = connectToRedis(dotenv.get("REDIS_HOST"));
-        Connection dbConn = connectToDB(dotenv.get("DB_HOST"));
+        Jedis redis = connectToRedis(System.getenv("REDIS_HOST"));
+        Connection dbConn = connectToDB(System.getenv("DATABASE_HOST"));
 
         System.err.println("Watching vote queue");
 
@@ -49,6 +47,7 @@ class Worker {
 
   static Jedis connectToRedis(String host) {
     Jedis conn = new Jedis(host);
+
     while (true) {
       try {
         conn.keys("*");
@@ -67,13 +66,13 @@ class Worker {
     Connection conn = null;
 
     try {
-      Dotenv dotenv = Dotenv.configure().load();
+
       Class.forName("org.postgresql.Driver");
-      String url = "jdbc:postgresql://" + dotenv.get("DATABASE_HOST") + "/" + dotenv.get("POSTGRES_DB");
+      String url = "jdbc:postgresql://" + host + "/postgres";
 
       while (conn == null) {
         try {
-            conn = DriverManager.getConnection(url, dotenv.get("POSTGRES_USER"), dotenv.get("POSTGRES_PASSWORD"));
+            conn = DriverManager.getConnection(url, "postgres", "password");
         } catch (SQLException e) {
           System.err.println("Waiting for db");
           sleep(1000);
