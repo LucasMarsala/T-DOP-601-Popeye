@@ -1,7 +1,5 @@
 .env
-result/.env
-poll/.env
-worker/.env
 result/node_modules
 poll/__pycache__
 worker/target
+db-data/*

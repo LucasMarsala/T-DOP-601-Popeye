@@ -16,8 +16,6 @@ EXPOSE 80/tcp
 
 WORKDIR /builder
 
-#COPY --from=builder /builder/.env .
-
 COPY --from=builder /builder/target/worker-jar-with-dependencies.jar .
 
 CMD ["java", "-jar", "worker-jar-with-dependencies.jar"]
