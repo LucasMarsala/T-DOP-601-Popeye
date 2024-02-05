@@ -18,38 +18,6 @@ sudo apt-get install docker docker-compose
 
 To deploy the project, you need to create .env files at the root of each project.
 
-### Poll .env content
-
-REDIS_HOST=redis
-</br>
-PORT=80
-</br>
-HOST=0.0.0.0
-
-### Worker .env content
-
-DATABASE_HOST=db
-</br>
-POSTGRES_USER=postgres
-</br>
-POSTGRES_PASSWORD=password
-</br>
-POSTGRES_DB=postgres
-</br>
-REDIS_HOST=redis
-
-### Result .env contents
-
-DATABASE_HOST=db
-</br>
-POSTGRES_USER=postgres
-</br>
-POSTGRES_PASSWORD=password
-</br>
-POSTGRES_DB=postgres
-</br>
-PORT=80
-
 ### At the root of the T-DOP-600 folder
 
 DATABASE_HOST=db
@@ -61,6 +29,10 @@ POSTGRES_PASSWORD=password
 POSTGRES_DB=postgres
 </br>
 REDIS_HOST=redis
+</br>
+PORT=80
+</br>
+HOST=0.0.0.0
 
 
 
