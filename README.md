@@ -16,7 +16,7 @@ sudo apt-get install docker docker-compose
 
 ```
 
-To deploy the project, you need to create .env files at the root of each project.
+To deploy the project, you need to create .env file.
 
 ### At the root of the T-DOP-600 folder
 
