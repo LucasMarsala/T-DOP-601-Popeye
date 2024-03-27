@@ -42,6 +42,6 @@ HOST=0.0.0.0
 
 docker-compose build
 
-docker-compose --env-file .env up -d
+docker-compose up -d
 
 ```
