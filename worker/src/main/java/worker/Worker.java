@@ -8,20 +8,20 @@ import org.json.JSONObject;
 class Worker {
   public static void main(String[] args) {
     try {
-        Jedis redis = connectToRedis(System.getenv("REDIS_HOST"));
-        Connection dbConn = connectToDB(System.getenv("DATABASE_HOST"));
+      Jedis redis = connectToRedis(System.getenv("REDIS_HOST"));
+      Connection dbConn = connectToDB();
 
-        System.err.println("Watching vote queue");
+      System.err.println("Watching vote queue");
 
-        while (true) {
-            String voteJSON = redis.blpop(0, "votes").get(1);
-            JSONObject voteData = new JSONObject(voteJSON);
-            String voterID = voteData.getString("voter_id");
-            String vote = voteData.getString("vote");
+      while (true) {
+        String voteJSON = redis.blpop(0, "votes").get(1);
+        JSONObject voteData = new JSONObject(voteJSON);
+        String voterID = voteData.getString("voter_id");
+        String vote = voteData.getString("vote");
 
-            System.err.printf("Processing vote for '%s' by '%s'\n", vote, voterID);
-            updateVote(dbConn, voterID, vote);
-        }
+        System.err.printf("Processing vote for '%s' by '%s'\n", vote, voterID);
+        updateVote(dbConn, voterID, vote);
+      }
     } catch (SQLException e) {
       e.printStackTrace();
       System.exit(1);
@@ -29,16 +29,14 @@ class Worker {
   }
 
   static void updateVote(Connection dbConn, String voterID, String vote) throws SQLException {
-    PreparedStatement insert = dbConn.prepareStatement(
-      "INSERT INTO votes (id, vote) VALUES (?, ?)");
+    PreparedStatement insert = dbConn.prepareStatement("INSERT INTO votes (id, vote) VALUES (?, ?)");
     insert.setString(1, voterID);
     insert.setString(2, vote);
 
     try {
       insert.executeUpdate();
     } catch (SQLException e) {
-      PreparedStatement update = dbConn.prepareStatement(
-        "UPDATE votes SET vote = ? WHERE id = ?");
+      PreparedStatement update = dbConn.prepareStatement("UPDATE votes SET vote = ? WHERE id = ?");
       update.setString(1, vote);
       update.setString(2, voterID);
       update.executeUpdate();
@@ -46,7 +44,7 @@ class Worker {
   }
 
   static Jedis connectToRedis(String host) {
-    Jedis conn = new Jedis(host);
+    Jedis conn = new Jedis(host, 6379);
 
     while (true) {
       try {
@@ -62,17 +60,19 @@ class Worker {
     return conn;
   }
 
-  static Connection connectToDB(String host) throws SQLException {
+  static Connection connectToDB() throws SQLException {
     Connection conn = null;
 
     try {
 
       Class.forName("org.postgresql.Driver");
-      String url = "jdbc:postgresql://" + host + "/postgres";
+      String url = "jdbc:postgresql://" + System.getenv("POSTGRES_HOST") + ':' + System.getenv("POSTGRES_PORT")
+          + "/" + System.getenv("POSTGRES_DB");
 
       while (conn == null) {
         try {
-            conn = DriverManager.getConnection(url, "postgres", "password");
+          conn = DriverManager.getConnection(url, System.getenv("POSTGRES_USER"),
+              System.getenv("POSTGRES_PASSWORD"));
         } catch (SQLException e) {
           System.err.println("Waiting for db");
           sleep(1000);

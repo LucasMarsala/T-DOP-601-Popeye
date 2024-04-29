@@ -9,9 +9,11 @@ var express = require('express'),
     server = require('http').Server(app),
     io = require('socket.io')(server);
 
-io.set('transports', ['polling']);
-
-var port = 80;
+var db_uri = "postgres://" + process.env['POSTGRES_USER']
+    + ':' + process.env['POSTGRES_PASSWORD']
+    + "@" + process.env['POSTGRES_HOST']
+    + ':' + process.env['POSTGRES_PORT']
+    + '/' + process.env['POSTGRES_DB'];
 
 io.sockets.on('connection', function (socket) {
 
@@ -25,11 +27,12 @@ io.sockets.on('connection', function (socket) {
 async.retry(
   {times: 1000, interval: 1000},
   function(callback) {
-      pg.connect('postgres://postgres:password@db/postgres', function(err, client, done) {
-          if (err) {
-              console.error("Waiting for db");
-          }
-          callback(err, client);
+      const client = new pg.Client(db_uri);
+      client.connect().then(() => {
+        callback(undefined, client);
+      }).catch((err) => {
+        console.error("Waiting for db", err);
+        callback(err, undefined);
       });
   },
   function(err, client) {
@@ -42,14 +45,13 @@ async.retry(
 );
 
 function getVotes(client) {
-  client.query('SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote', [], function(err, result) {
-    if (err) {
-      console.error("Error performing query: " + err);
-    } else {
-      var votes = collectVotesFromResult(result);
-      io.sockets.emit("scores", JSON.stringify(votes));
-    }
-
+  client.query('SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote', [])
+  .then((result) => {
+    var votes = collectVotesFromResult(result);
+    io.sockets.emit("scores", JSON.stringify(votes));
+    setTimeout(function() {getVotes(client) }, 1000);
+  }).catch((err) => {
+    console.error("Error performing query: " + err);
     setTimeout(function() {getVotes(client) }, 1000);
   });
 }
@@ -83,7 +85,7 @@ app.get('/', function (req, res) {
   res.sendFile(path.resolve(__dirname + '/views/index.html'));
 });
 
-server.listen(port, function () {
+server.listen(80, function () {
   var port = server.address().port;
   console.log('App running on port ' + port);
 });

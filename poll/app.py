@@ -1,21 +1,14 @@
 from flask import Flask, render_template, request, make_response, g
 from redis import Redis
-from dotenv import load_dotenv
 import os
 import socket
 import random
 import json
 
-
-load_dotenv()
-
-port = os.getenv('PORT')
-host = os.getenv('HOST')
-redis = os.getenv('REDIS_HOST')
 option_a = os.getenv('OPTION_A', "Ansible")
 option_b = os.getenv('OPTION_B', "Chef")
 option_c = os.getenv('OPTION_C', "Puppet")
-option_d = os.getenv('OPTION_B', "SaltStack")
+option_d = os.getenv('OPTION_D', "SaltStack")
 hostname = socket.gethostname()
 
 app = Flask(__name__)
@@ -23,7 +16,7 @@ app = Flask(__name__)
 
 def get_redis():
     if not hasattr(g, 'redis'):
-        g.redis = Redis(host=redis, db=0, socket_timeout=5)
+        g.redis = Redis(host=os.environ['REDIS_HOST'], db=0, socket_timeout=5)
     return g.redis
 
 
@@ -55,4 +48,4 @@ def hello():
 
 
 if __name__ == "__main__":
-    app.run(host=host, port=port, debug=True, threaded=True)
+    app.run(host='0.0.0.0', port=80, debug=True, threaded=True)

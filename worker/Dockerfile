@@ -1,4 +1,4 @@
-FROM maven:3.8.4-jdk-11-slim AS builder
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 
 EXPOSE 80/tcp
 
@@ -10,7 +10,7 @@ RUN mvn dependency:resolve
 
 RUN mvn package
 
-FROM openjdk:11-jre-slim AS run
+FROM eclipse-temurin:21-jre-alpine AS run
 
 EXPOSE 80/tcp
 
