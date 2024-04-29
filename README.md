@@ -20,18 +20,14 @@ To deploy the project, you need to create .env file.
 
 ### At the root of the T-DOP-600 folder
 
+```bash
 POSTGRES_HOST=db
-</br>
 POSTGRES_PORT=5432
-</br>
 POSTGRES_USER=postgres
-</br>
 POSTGRES_PASSWORD=password
-</br>
 POSTGRES_DB=postgres
-</br>
 REDIS_HOST=redis
-
+```bash
 
 
 ## Usage
