@@ -27,7 +27,7 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=postgres
 REDIS_HOST=redis
-```bash
+```
 
 
 ## Usage
