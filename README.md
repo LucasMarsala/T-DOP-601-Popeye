@@ -12,7 +12,7 @@ Docker version 20 >=
 
 ```bash
 
-sudo apt-get install docker docker-compose
+sudo apt-get install docker 
 
 ```
 
